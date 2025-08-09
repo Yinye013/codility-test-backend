@@ -56,6 +56,35 @@ UserSchema.methods.comparePassword = async function (userPassword) {
   return await bcrypt.compare(userPassword, this.password);
 };
 
+UserSchema.methods.addTransaction = function (type, amount, description) {
+  const newBalance =
+    type === "credit"
+      ? this.wallet.balance + amount
+      : this.wallet.balance - amount;
+
+  if (newBalance < 0) {
+    throw new Error("Insufficient balance for this transaction");
+  }
+
+  const transaction = {
+    type,
+    amount,
+    description,
+    balanceAfter: newBalance,
+    createdAt: new Date(),
+  };
+
+  this.wallet.transactions.push(transaction);
+  this.wallet.balance = newBalance;
+  return this.save();
+};
+
+UserSchema.methods.getTransactionHistory = function (limit = 10) {
+  return this.wallet.transactions
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, limit);
+};
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;
