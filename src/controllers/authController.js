@@ -20,7 +20,7 @@ function sendTokenResponse(user, statusCode, res) {
     createdAt: user.createdAt,
   };
   res.status(statusCode).json({
-    status: true,
+    success: true,
     token,
     message: "Authentication successful",
     data: userResponse,
@@ -71,7 +71,6 @@ const register = async (req, res) => {
       });
     }
 
-    // To handle duplicate key error: if email already exists
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -128,7 +127,7 @@ const login = async (req, res) => {
 };
 
 // @desc    Get current logged in user
-// @route   GET /api/auth/me
+// @route   GET /api/auth/currentUser
 // @access  Private
 const getCurrentLoggedInUser = async (req, res) => {
   try {
